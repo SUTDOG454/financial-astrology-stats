@@ -1,0 +1,666 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-05-31",
+  "description": "Comprehensive compilation of all astrological indicators and trading signals",
+  "indicators": {
+    "planet_positions": {
+      "name": "Planet Position Indicators",
+      "description": "Astrological indicators based on planetary positions",
+      "signals": [
+        {
+          "id": "planet_zodsign",
+          "name": "Planet in Zodiac Sign",
+          "description": "Planet position within zodiac signs and their price effects",
+          "dataFile": "*planet_zodsign-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetZodSign",
+            "Planet",
+            "ZodSign",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_decan",
+          "name": "Planet in Decan",
+          "description": "Planet position within decans (10-degree divisions) of zodiac signs",
+          "dataFile": "*planet_decan-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetDecan",
+            "Planet",
+            "Decan",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_polarity",
+          "name": "Planet Polarity",
+          "description": "Planet polarity (masculine/feminine) and price effects",
+          "dataFile": "*planet_polarity-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetPolarity",
+            "Planet",
+            "Polarity",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_quality",
+          "name": "Planet Quality",
+          "description": "Planet quality (cardinal, fixed, mutable) and price effects",
+          "dataFile": "*planet_quality-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetQuality",
+            "Planet",
+            "Quality",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_element",
+          "name": "Planet Element",
+          "description": "Planet element (fire, earth, air, water) and price effects",
+          "dataFile": "*planet_element-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetElement",
+            "Planet",
+            "Element",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_speed",
+          "name": "Planet Speed Phase",
+          "description": "Planet speed phase (retrograde, direct, stationary) and price effects",
+          "dataFile": "*planet_speed-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetSpeedPhase",
+            "Planet",
+            "SpeedPhase",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_vedic_mansion",
+          "name": "Planet Vedic Mansion",
+          "description": "Planet position in vedic lunar mansions (nakshatras)",
+          "dataFile": "*planet_vedic_mansion-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetVedicMansion",
+            "Planet",
+            "VedicMansion",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_arab_mansion",
+          "name": "Planet Arab Mansion",
+          "description": "Planet position in arab lunar mansions (manzil)",
+          "dataFile": "*planet_arab_mansion-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetArabMansion",
+            "Planet",
+            "ArabMansion",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        }
+      ]
+    },
+    "planet_count_indicators": {
+      "name": "Planet Count Indicators",
+      "description": "Indicators based on counts of planets in specific positions",
+      "signals": [
+        {
+          "id": "planet_elements",
+          "name": "Planets in Elements Count",
+          "description": "Count of planets distributed across astrological elements",
+          "dataFile": "*planet_elements-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetElementCountRange",
+            "Element",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_qualities",
+          "name": "Planets in Qualities Count",
+          "description": "Count of planets distributed across astrological qualities",
+          "dataFile": "*planet_qualities-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetQualityCountRange",
+            "Quality",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        }
+      ]
+    },
+    "planet_aspects": {
+      "name": "Planet Aspect Indicators",
+      "description": "Indicators based on angles between planets (aspects)",
+      "signals": [
+        {
+          "id": "planets_aspects",
+          "name": "Planets Aspects",
+          "description": "Angular relationships between planets and their price effects",
+          "dataFile": "*planets_aspects-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetsAspect",
+            "PlanetX",
+            "PlanetY",
+            "Aspect",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planets_aspects_descriptive",
+          "name": "Planets Aspects Price Descriptive Stats",
+          "description": "Detailed statistics of price changes during planetary aspects",
+          "dataFile": "*planets_aspects-price_descriptive_stats.csv",
+          "categories": [
+            "PlanetsAspect",
+            "vars",
+            "n",
+            "mean",
+            "sd",
+            "median",
+            "trimmed",
+            "mad",
+            "min",
+            "max",
+            "range",
+            "skew",
+            "kurtosis",
+            "se"
+          ]
+        },
+        {
+          "id": "planet_receiver_aspects",
+          "name": "Planet Receiver Aspects Count",
+          "description": "Count of aspects received by each planet",
+          "dataFile": "*planet_receiver_aspects-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetAspectsCount",
+            "Planet",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_receiver_aspect_types",
+          "name": "Planet Receiver Aspect Types Count",
+          "description": "Count by aspect type received by each planet",
+          "dataFile": "*planet_receiver_aspect_types-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetAspectCountRange",
+            "Planet",
+            "Aspect",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_emitter_aspects",
+          "name": "Planet Emitter Aspects Count",
+          "description": "Count of aspects emitted by each planet",
+          "dataFile": "*planet_emitter_aspects-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetAspectsCount",
+            "Planet",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_emitter_aspect_types",
+          "name": "Planet Emitter Aspect Types Count",
+          "description": "Count by aspect type emitted by each planet",
+          "dataFile": "*planet_emitter_aspect_types-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetAspectCountRange",
+            "Planet",
+            "Aspect",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_aspects_total",
+          "name": "Planet Total Aspects Count",
+          "description": "Total count of all aspects for each planet",
+          "dataFile": "*planet_aspects-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetAspectsCount",
+            "Planet",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "planet_aspect_types_total",
+          "name": "Planet Aspect Types Count",
+          "description": "Total count of all aspect types for each planet",
+          "dataFile": "*planet_aspect_types-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetAspectCountRange",
+            "Planet",
+            "Aspect",
+            "CountRange",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "transit_aspects",
+          "name": "Natal Transit Aspects",
+          "description": "Transiting planets aspecting natal chart planets",
+          "dataFile": "*transit_aspects-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "PlanetsAspect",
+            "PlanetX",
+            "PlanetY",
+            "Aspect",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        }
+      ]
+    },
+    "moon_phase_indicators": {
+      "name": "Moon Phase Indicators",
+      "description": "Indicators based on lunar phases and positions",
+      "signals": [
+        {
+          "id": "moon_phase",
+          "name": "Moon Phase",
+          "description": "Lunar phase (new, waxing, full, waning) and price effects",
+          "dataFile": "*moon_phase-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "MoonPhaseID",
+            "MoonPhase",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        },
+        {
+          "id": "moon_phase_zod_sign",
+          "name": "Moon Phase in Zodiac Sign",
+          "description": "Lunar phase within zodiac signs and price effects",
+          "dataFile": "*moon_phase_zod_sign-buy_sell_count_freq_stats.csv",
+          "categories": [
+            "MoonPhaseZodSignID",
+            "MoonPhase",
+            "ZodSign",
+            "Buy",
+            "Sell",
+            "DaysN",
+            "BuyDays%",
+            "SellDays%"
+          ]
+        }
+      ]
+    }
+  },
+  "composite_signals": {
+    "name": "Composite Trading Signals",
+    "description": "Combined signals and indices for trading decisions",
+    "signals": [
+      {
+        "id": "daily_index",
+        "name": "Daily Signals Index",
+        "description": "Composite daily trading signal index combining multiple indicators",
+        "dataFile": "ml-<symbol>-daily-index.csv",
+        "columns": [
+          "Date",
+          "Action",
+          "Confidence",
+          "PriceEffect"
+        ],
+        "categories": [
+          "Buy",
+          "Sell"
+        ]
+      },
+      {
+        "id": "signals_index_performance",
+        "name": "Signals Index Performance",
+        "description": "Monthly accuracy and performance metrics of the signals index",
+        "reportFile": "signals_index_monthly_performance.txt",
+        "metrics": [
+          "Accuracy",
+          "Prevalence",
+          "Confusion Matrix",
+          "Portfolio Accuracy",
+          "Portfolio Prevalence"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "planet_positions": {
+      "source": "Astronomical calculations",
+      "frequency": "Hourly",
+      "timeRange": "2010-01-01 to 2030-12-31",
+      "location": "data/",
+      "description": "Daily planet longitude, speed, declination in tropical and sidereal coordinates"
+    },
+    "planet_aspects": {
+      "source": "Calculated from planet positions",
+      "frequency": "Daily",
+      "description": "Angular relationships between planets at specific orbs"
+    },
+    "moon_phases": {
+      "source": "Astronomical calculations",
+      "frequency": "Daily",
+      "description": "Lunar phase, zodiac position, mansion assignments"
+    },
+    "natal_charts": {
+      "source": "Asset inception dates",
+      "description": "Natal chart for each asset being analyzed",
+      "note": "Based on asset creation/launch date and time"
+    },
+    "price_data": {
+      "source": "Historical OHLC data",
+      "frequency": "Daily",
+      "categories": ["Buy", "Sell"],
+      "calculation": "Based on opening and closing prices"
+    }
+  },
+  "aspect_types": {
+    "major_aspects": [
+      {
+        "name": "Conjunction",
+        "abbreviation": "CNTR",
+        "angle": 0,
+        "orb": "8-10 degrees"
+      },
+      {
+        "name": "Sextile",
+        "abbreviation": "SXT",
+        "angle": 60,
+        "orb": "4-6 degrees"
+      },
+      {
+        "name": "Square",
+        "abbreviation": "SQR",
+        "angle": 90,
+        "orb": "6-8 degrees"
+      },
+      {
+        "name": "Trine",
+        "abbreviation": "TRN",
+        "angle": 120,
+        "orb": "6-8 degrees"
+      },
+      {
+        "name": "Opposition",
+        "abbreviation": "OPP",
+        "angle": 180,
+        "orb": "8-10 degrees"
+      }
+    ]
+  },
+  "planet_list": [
+    {
+      "id": "SU",
+      "name": "Sun",
+      "abbreviation": "Sun",
+      "category": "Luminary"
+    },
+    {
+      "id": "MO",
+      "name": "Moon",
+      "abbreviation": "Moon",
+      "category": "Luminary"
+    },
+    {
+      "id": "ME",
+      "name": "Mercury",
+      "abbreviation": "Merc",
+      "category": "Personal"
+    },
+    {
+      "id": "VE",
+      "name": "Venus",
+      "abbreviation": "Ven",
+      "category": "Personal"
+    },
+    {
+      "id": "MA",
+      "name": "Mars",
+      "abbreviation": "Mars",
+      "category": "Personal"
+    },
+    {
+      "id": "JU",
+      "name": "Jupiter",
+      "abbreviation": "Jup",
+      "category": "Social"
+    },
+    {
+      "id": "SA",
+      "name": "Saturn",
+      "abbreviation": "Sat",
+      "category": "Social"
+    },
+    {
+      "id": "UR",
+      "name": "Uranus",
+      "abbreviation": "Ura",
+      "category": "Transpersonal"
+    },
+    {
+      "id": "NE",
+      "name": "Neptune",
+      "abbreviation": "Nep",
+      "category": "Transpersonal"
+    },
+    {
+      "id": "PL",
+      "name": "Pluto",
+      "abbreviation": "Plu",
+      "category": "Transpersonal"
+    }
+  ],
+  "zodiac_signs": [
+    {
+      "id": "AR",
+      "number": 1,
+      "name": "Aries",
+      "element": "Fire",
+      "quality": "Cardinal",
+      "polarity": "Masculine"
+    },
+    {
+      "id": "TA",
+      "number": 2,
+      "name": "Taurus",
+      "element": "Earth",
+      "quality": "Fixed",
+      "polarity": "Feminine"
+    },
+    {
+      "id": "GE",
+      "number": 3,
+      "name": "Gemini",
+      "element": "Air",
+      "quality": "Mutable",
+      "polarity": "Masculine"
+    },
+    {
+      "id": "CN",
+      "number": 4,
+      "name": "Cancer",
+      "element": "Water",
+      "quality": "Cardinal",
+      "polarity": "Feminine"
+    },
+    {
+      "id": "LE",
+      "number": 5,
+      "name": "Leo",
+      "element": "Fire",
+      "quality": "Fixed",
+      "polarity": "Masculine"
+    },
+    {
+      "id": "VI",
+      "number": 6,
+      "name": "Virgo",
+      "element": "Earth",
+      "quality": "Mutable",
+      "polarity": "Feminine"
+    },
+    {
+      "id": "LI",
+      "number": 7,
+      "name": "Libra",
+      "element": "Air",
+      "quality": "Cardinal",
+      "polarity": "Masculine"
+    },
+    {
+      "id": "SC",
+      "number": 8,
+      "name": "Scorpio",
+      "element": "Water",
+      "quality": "Fixed",
+      "polarity": "Feminine"
+    },
+    {
+      "id": "SG",
+      "number": 9,
+      "name": "Sagittarius",
+      "element": "Fire",
+      "quality": "Mutable",
+      "polarity": "Masculine"
+    },
+    {
+      "id": "CP",
+      "number": 10,
+      "name": "Capricorn",
+      "element": "Earth",
+      "quality": "Cardinal",
+      "polarity": "Feminine"
+    },
+    {
+      "id": "AQ",
+      "number": 11,
+      "name": "Aquarius",
+      "element": "Air",
+      "quality": "Fixed",
+      "polarity": "Masculine"
+    },
+    {
+      "id": "PI",
+      "number": 12,
+      "name": "Pisces",
+      "element": "Water",
+      "quality": "Mutable",
+      "polarity": "Feminine"
+    }
+  ],
+  "performance_metrics": {
+    "startDate": "2020-10-01",
+    "metrics": [
+      "Monthly Accuracy",
+      "Prevalence",
+      "Buy/Sell Ratio",
+      "Confusion Matrix",
+      "Portfolio Accuracy",
+      "Portfolio Precision",
+      "Portfolio Recall",
+      "F1 Score"
+    ]
+  },
+  "export_formats": {
+    "pine_script": {
+      "description": "PineScript arrays for TradingView indicators",
+      "file": "pine-script-astro-positions.txt",
+      "variables": [
+        "Tropical Longitude",
+        "Sidereal Longitude",
+        "Speed",
+        "Declination"
+      ]
+    },
+    "csv": {
+      "description": "CSV files for analysis and external tools",
+      "location": "stats/",
+      "naming_convention": "<symbol>-<indicator>-<metric_type>.csv"
+    }
+  }
+}
