@@ -8,9 +8,8 @@ import numpy as np
 class FeatureConfig:
     aspect_orb_deg: float = 3.0
     harmonic_orb_deg: float = 2.0
+    declination_orb_deg: float = 1.0
     harmonics: tuple[int, ...] = tuple(range(1, 25))
-    # Candidate financial-astrology interactions. The registry is explicit so
-    # each family can be ablated independently rather than hidden in the model.
     financial_pairs: tuple[tuple[str, str], ...] = (
         ("venus", "chiron"), ("venus", "neptune"), ("venus", "pluto"),
         ("chiron", "neptune"), ("chiron", "pluto"), ("neptune", "pluto"),
@@ -33,6 +32,10 @@ def _resonance(delta: np.ndarray, angle: float, orb: float) -> np.ndarray:
     return np.exp(-0.5 * (_circular_distance(delta, angle) / max(orb, 1e-6)) ** 2).astype(np.float32)
 
 
+def _pair_resonance(a: np.ndarray, b: np.ndarray, target: float, orb: float) -> np.ndarray:
+    return np.exp(-0.5 * (((a - target - b) / max(orb, 1e-6)) ** 2)).astype(np.float32)
+
+
 class FinancialAstroFeatureBuilder:
     """Build financial-astrology candidate variables without future leakage.
 
@@ -44,18 +47,34 @@ class FinancialAstroFeatureBuilder:
         self.names = ephemeris_names
         self.cfg = cfg or FeatureConfig()
         self.lon_idx = {}
+        self.lat_idx = {}
         self.speed_idx = {}
         for i, name in enumerate(ephemeris_names):
             if name.endswith("_lon_sin"):
                 self.lon_idx[name[:-8]] = (i, i + 1)
+            elif name.endswith("_lat_sin"):
+                self.lat_idx[name[:-8]] = (i, i + 1)
             elif name.endswith("_lon_speed"):
                 self.speed_idx[name[:-10]] = i
 
     def _longitudes(self, e: np.ndarray) -> dict[str, np.ndarray]:
         return {p: np.degrees(np.arctan2(e[:, a], e[:, b])) % 360.0 for p, (a, b) in self.lon_idx.items()}
 
+    def _declinations(self, e: np.ndarray) -> dict[str, np.ndarray]:
+        # sin(dec) = sin(beta) cos(eps) + cos(beta) sin(eps) sin(lambda).
+        eps = np.radians(23.4392911)
+        result = {}
+        for p, (lat_sin, lat_cos) in self.lat_idx.items():
+            if p not in self.lon_idx:
+                continue
+            lon_sin = e[:, self.lon_idx[p][0]]
+            sin_dec = e[:, lat_sin] * np.cos(eps) + e[:, lat_cos] * np.sin(eps) * lon_sin
+            result[p] = np.degrees(np.arcsin(np.clip(sin_dec, -1.0, 1.0)))
+        return result
+
     def build(self, e: np.ndarray) -> tuple[np.ndarray, list[str]]:
         lon = self._longitudes(e)
+        dec = self._declinations(e)
         out, names = [], []
         if "sun" in lon and "moon" in lon:
             phase = (lon["moon"] - lon["sun"]) % 360.0
@@ -67,6 +86,9 @@ class FinancialAstroFeatureBuilder:
                 s = e[:, self.speed_idx[planet]]
                 out += [np.abs(s), np.exp(-np.abs(s) / 0.05)]
                 names += [f"{planet}_speed_abs", f"{planet}_station_proximity"]
+            if planet in dec:
+                out += [np.sin(np.radians(dec[planet])), np.cos(np.radians(dec[planet]))]
+                names += [f"{planet}_declination_sin", f"{planet}_declination_cos"]
 
         for a, b in self.cfg.financial_pairs:
             if a not in lon or b not in lon:
@@ -78,6 +100,10 @@ class FinancialAstroFeatureBuilder:
             for angle in self.cfg.magi_geometry:
                 out.append(_resonance(delta, angle, self.cfg.aspect_orb_deg))
                 names.append(f"magi_geometry_{a}_{b}_{int(angle)}")
+            if a in dec and b in dec:
+                d = np.abs(dec[a] - dec[b])
+                out += [_resonance(d, 0.0, self.cfg.declination_orb_deg), _resonance(np.abs(dec[a] + dec[b]), 0.0, self.cfg.declination_orb_deg)]
+                names += [f"parallel_{a}_{b}", f"contra_parallel_{a}_{b}"]
             if a in self.speed_idx and b in self.speed_idx:
                 rel_speed = e[:, self.speed_idx[a]] - e[:, self.speed_idx[b]]
                 out.append(np.tanh(rel_speed / 0.5))
@@ -89,8 +115,7 @@ class FinancialAstroFeatureBuilder:
             for a, b in self.cfg.financial_pairs:
                 if a not in lon or b not in lon:
                     continue
-                delta = (lon[a] - lon[b]) % 360.0
-                folded = (h * delta) % 360.0
+                folded = (h * ((lon[a] - lon[b]) % 360.0)) % 360.0
                 density += _resonance(folded, 0.0, self.cfg.harmonic_orb_deg)
                 count += 1
             if count:
