@@ -54,9 +54,11 @@ def build_market_features(df: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
         "trend_20": (close.rolling(5).mean() / close.rolling(20).mean()) - 1.0,
     })
     feats = feats.replace([np.inf, -np.inf], np.nan).bfill().ffill().fillna(0.0)
-    # Robust clipping prevents one historical crisis observation from dominating PPO normalization.
+    raw_return = feats["return_1"].to_numpy(dtype=np.float32)
     arr = feats.to_numpy(dtype=np.float32)
     med = np.nanmedian(arr, axis=0)
     mad = np.nanmedian(np.abs(arr - med), axis=0) + 1e-6
     arr = np.clip((arr - med) / (1.4826 * mad), -8.0, 8.0).astype(np.float32)
+    # Contract: market[:, 0] is the raw simple return consumed by BatchedMarketEnv.
+    arr[:, 0] = raw_return
     return arr, list(feats.columns)
