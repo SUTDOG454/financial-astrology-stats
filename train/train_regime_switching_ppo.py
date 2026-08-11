@@ -4,8 +4,14 @@ import argparse
 import json
 import os
 import random
+import sys
+from pathlib import Path
+
 import numpy as np
 import torch
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
 from astro_rl.config import PPOConfig
 from astro_rl.env import BatchedMarketEnv, build_demo_dataset
