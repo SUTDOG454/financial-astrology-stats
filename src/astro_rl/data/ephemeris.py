@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 import math
 import numpy as np
 
@@ -16,13 +16,17 @@ class EphemerisConfig:
     backend: str = "swiss"  # swiss | jpl
     ephe_path: str | None = None
     jpl_file: str | None = None
-    planets: tuple[str, ...] = ("sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto", "true_node")
+    planets: tuple[str, ...] = (
+        "sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn",
+        "uranus", "neptune", "pluto", "chiron", "ceres", "true_node",
+    )
 
 
 _PLANETS = {
     "sun": "SE_SUN", "moon": "SE_MOON", "mercury": "SE_MERCURY", "venus": "SE_VENUS",
     "mars": "SE_MARS", "jupiter": "SE_JUPITER", "saturn": "SE_SATURN", "uranus": "SE_URANUS",
-    "neptune": "SE_NEPTUNE", "pluto": "SE_PLUTO", "true_node": "SE_TRUE_NODE",
+    "neptune": "SE_NEPTUNE", "pluto": "SE_PLUTO", "chiron": "SE_CHIRON", "ceres": "SE_CERES",
+    "true_node": "SE_TRUE_NODE",
 }
 
 
@@ -30,8 +34,8 @@ class SwissEphemerisProvider:
     """Deterministic UTC -> geocentric ecliptic ephemeris adapter.
 
     Swiss Ephemeris is the normal backend. When a JPL DE file is configured, the
-    adapter requests JPL calculations through Swiss Ephemeris. The resulting
-    feature schema is identical across backends.
+    adapter requests JPL calculations through Swiss Ephemeris. The feature schema
+    is identical across backends, allowing backend-ablation and cross-validation.
     """
 
     def __init__(self, cfg: EphemerisConfig):
@@ -48,15 +52,11 @@ class SwissEphemerisProvider:
             swe.set_jpl_file(cfg.jpl_file)
 
     def _flags(self):
-        flags = swe.FLG_SWIEPH | swe.FLG_SPEED
-        if self.cfg.backend == "jpl":
-            flags = swe.FLG_JPLEPH | swe.FLG_SPEED
-        return flags
+        return (swe.FLG_JPLEPH if self.cfg.backend == "jpl" else swe.FLG_SWIEPH) | swe.FLG_SPEED
 
     @staticmethod
     def _jd(dt: datetime) -> float:
-        dt = dt.replace(tzinfo=dt.tzinfo) if dt.tzinfo else dt.replace(tzinfo=__import__("datetime").timezone.utc)
-        u = dt.astimezone(__import__("datetime").timezone.utc)
+        u = (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)).astimezone(timezone.utc)
         hour = u.hour + u.minute / 60.0 + u.second / 3600.0 + u.microsecond / 3.6e9
         return float(swe.julday(u.year, u.month, u.day, hour, swe.GREG_CAL))
 
@@ -66,13 +66,18 @@ class SwissEphemerisProvider:
         vals: list[float] = []
         names: list[str] = []
         for name in self.cfg.planets:
-            attr = _PLANETS[name]
-            body = getattr(swe, attr)
+            body = getattr(swe, _PLANETS[name])
             xx, _ = swe.calc_ut(jd, body, flags)
             lon, lat, dist, lon_speed, lat_speed, dist_speed = map(float, xx[:6])
             r = math.radians(lon)
-            vals.extend([math.sin(r), math.cos(r), math.sin(math.radians(lat)), math.cos(math.radians(lat)), lon_speed / 2.0, lat_speed / 2.0, math.log1p(max(dist, 0.0)), float(lon_speed < 0)])
-            names.extend([f"{name}_lon_sin", f"{name}_lon_cos", f"{name}_lat_sin", f"{name}_lat_cos", f"{name}_lon_speed", f"{name}_lat_speed", f"{name}_log_distance", f"{name}_retrograde"])
+            vals.extend([
+                math.sin(r), math.cos(r), math.sin(math.radians(lat)), math.cos(math.radians(lat)),
+                lon_speed / 2.0, lat_speed / 2.0, math.log1p(max(dist, 0.0)), float(lon_speed < 0),
+            ])
+            names.extend([
+                f"{name}_lon_sin", f"{name}_lon_cos", f"{name}_lat_sin", f"{name}_lat_cos",
+                f"{name}_lon_speed", f"{name}_lat_speed", f"{name}_log_distance", f"{name}_retrograde",
+            ])
         return np.asarray(vals, dtype=np.float32), names
 
     def matrix(self, timestamps) -> tuple[np.ndarray, list[str]]:
