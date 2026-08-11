@@ -12,7 +12,6 @@ import pandas as pd
 from .ephemeris import EphemerisConfig, SwissEphemerisProvider
 from .market import build_market_features, load_market_frame
 
-
 CORE_BODIES = ["sun", "moon", "mercury", "venus", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]
 EXTRA_BODIES = ["chiron", "ceres", "pallas", "juno", "vesta", "sedna"]
 ASPECTS = [(0.0, "conjunction"), (60.0, "sextile"), (90.0, "square"), (120.0, "trine"), (180.0, "opposition")]
@@ -21,7 +20,6 @@ FINANCIAL_PAIRS = [
     ("jupiter", "pluto"), ("venus", "jupiter"), ("venus", "saturn"), ("venus", "pluto"),
     ("mars", "uranus"), ("saturn", "uranus"), ("saturn", "pluto"), ("uranus", "pluto"),
 ]
-
 
 @dataclass(frozen=True)
 class FinancialAstroFeatureConfig:
@@ -32,28 +30,19 @@ class FinancialAstroFeatureConfig:
     include_extra_bodies: bool = True
     aspect_orb_deg: float = 3.0
     station_speed_threshold: float = 0.03
-    standardize: bool = True
-
+    standardize: bool = False  # fit-on-train standardization belongs in the split pipeline, not here
 
 def angular_distance(a: float, b: float) -> float:
     return float(abs((a - b + 180.0) % 360.0 - 180.0))
 
-
 def aspect_residual(a: float, b: float, exact: float) -> float:
     return abs(angular_distance(a, b) - exact)
-
 
 def _safe(v: float) -> float:
     return 0.0 if not np.isfinite(v) else float(v)
 
-
 class CanonicalFinancialAstroTensorBuilder:
-    """Market x ephemeris tensor with deterministic point-in-time alignment.
-
-    Row t contains only information available at market timestamp t. The PPO
-    environment consumes the next market return as the realized reward.
-    """
-
+    """Market x Swiss Ephemeris/JPL tensor with point-in-time-safe alignment."""
     def __init__(self, config: FinancialAstroFeatureConfig | None = None):
         self.config = config or FinancialAstroFeatureConfig()
         bodies = {
@@ -159,9 +148,7 @@ class CanonicalFinancialAstroTensorBuilder:
         if astro.ndim != 2 or astro.shape[0] != market.shape[0]:
             raise RuntimeError("Market and ephemeris tensors are not row-aligned")
         if self.config.standardize:
-            med = np.median(astro, axis=0)
-            mad = np.median(np.abs(astro - med), axis=0) + 1e-6
-            astro = np.clip((astro - med) / (1.4826 * mad), -8.0, 8.0).astype(np.float32)
+            raise ValueError("standardize=True is disabled in the canonical builder; fit scalers on training-only data")
         return market.astype(np.float32), astro.astype(np.float32), market_names + (names or [])
 
 
