@@ -58,8 +58,9 @@ class HierarchicalPPO(nn.Module):
         regime = regime_dist.probs.argmax(-1) if deterministic else regime_dist.sample()
         mean, value = self._conditioned_heads(z, regime)
         action_dist = Normal(mean, self.log_std.exp().clamp(0.03, 1.0))
+        # Keep the sampled Gaussian action for PPO's exact log-probability ratio.
+        # The environment clips the executable target position to [-1, 1].
         action = mean if deterministic else action_dist.rsample()
-        action = action.clamp(-1.0, 1.0)
         logp = regime_dist.log_prob(regime) + action_dist.log_prob(action).sum(-1)
         entropy = regime_dist.entropy() + action_dist.entropy().sum(-1)
         return action, regime, logp, entropy, value, regime_logits
