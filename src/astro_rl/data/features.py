@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import math
 import numpy as np
 
 
@@ -10,19 +9,24 @@ class FeatureConfig:
     aspect_orb_deg: float = 3.0
     harmonic_orb_deg: float = 2.0
     harmonics: tuple[int, ...] = tuple(range(1, 25))
+    # Candidate financial-astrology interactions. The registry is explicit so
+    # each family can be ablated independently rather than hidden in the model.
     financial_pairs: tuple[tuple[str, str], ...] = (
-        ("jupiter", "saturn"), ("jupiter", "uranus"), ("saturn", "uranus"),
-        ("venus", "jupiter"), ("venus", "uranus"), ("mars", "jupiter"),
-        ("sun", "jupiter"), ("sun", "saturn"), ("mercury", "jupiter"),
-        ("mercury", "uranus"), ("saturn", "neptune"), ("uranus", "neptune"),
+        ("venus", "chiron"), ("venus", "neptune"), ("venus", "pluto"),
+        ("chiron", "neptune"), ("chiron", "pluto"), ("neptune", "pluto"),
+        ("ceres", "chiron"), ("ceres", "neptune"), ("jupiter", "chiron"),
+        ("saturn", "chiron"), ("jupiter", "saturn"), ("jupiter", "uranus"),
+        ("saturn", "uranus"), ("venus", "jupiter"), ("venus", "uranus"),
+        ("mars", "jupiter"), ("sun", "jupiter"), ("sun", "saturn"),
+        ("mercury", "jupiter"), ("mercury", "uranus"), ("saturn", "neptune"),
+        ("uranus", "neptune"), ("pluto", "uranus"),
     )
     classical_aspects: tuple[float, ...] = (0.0, 60.0, 90.0, 120.0, 180.0)
     magi_geometry: tuple[float, ...] = (0.0, 36.0, 72.0, 108.0, 144.0, 180.0)
 
 
 def _circular_distance(x: np.ndarray, target: float) -> np.ndarray:
-    d = np.abs(((x - target + 180.0) % 360.0) - 180.0)
-    return d
+    return np.abs(((x - target + 180.0) % 360.0) - 180.0)
 
 
 def _resonance(delta: np.ndarray, angle: float, orb: float) -> np.ndarray:
@@ -30,11 +34,10 @@ def _resonance(delta: np.ndarray, angle: float, orb: float) -> np.ndarray:
 
 
 class FinancialAstroFeatureBuilder:
-    """Builds testable financial-astrology features without future leakage.
+    """Build financial-astrology candidate variables without future leakage.
 
-    The feature registry deliberately separates raw ephemeris, classical aspects,
-    harmonic structure and Magi-style geometry. It does not assign empirical
-    truth to any astrological hypothesis; every feature can be ablated and tested.
+    The registry reflects documented Magi financial-astrology hypotheses while
+    treating them as testable features, not established causal relationships.
     """
 
     def __init__(self, ephemeris_names: list[str], cfg: FeatureConfig | None = None):
@@ -75,13 +78,11 @@ class FinancialAstroFeatureBuilder:
             for angle in self.cfg.magi_geometry:
                 out.append(_resonance(delta, angle, self.cfg.aspect_orb_deg))
                 names.append(f"magi_geometry_{a}_{b}_{int(angle)}")
-            # Directional phase: useful for applying/separating experiments.
             if a in self.speed_idx and b in self.speed_idx:
                 rel_speed = e[:, self.speed_idx[a]] - e[:, self.speed_idx[b]]
                 out.append(np.tanh(rel_speed / 0.5))
                 names.append(f"relative_speed_{a}_{b}")
 
-        # Harmonic resonance density: a compact H1-H24 representation.
         for h in self.cfg.harmonics:
             density = np.zeros(e.shape[0], dtype=np.float32)
             count = 0
@@ -89,7 +90,6 @@ class FinancialAstroFeatureBuilder:
                 if a not in lon or b not in lon:
                     continue
                 delta = (lon[a] - lon[b]) % 360.0
-                # Harmonic H is strongest when H*delta is close to 0 mod 360.
                 folded = (h * delta) % 360.0
                 density += _resonance(folded, 0.0, self.cfg.harmonic_orb_deg)
                 count += 1
