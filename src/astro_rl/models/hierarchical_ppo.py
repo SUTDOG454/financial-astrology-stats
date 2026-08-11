@@ -33,25 +33,30 @@ class HierarchicalPPO(nn.Module):
     def encode(self, market, astro):
         return self.fusion(torch.cat([self.market_encoder(market), self.astro_encoder(astro)], dim=-1))
 
+    def _conditioned_heads(self, z, regime):
+        one_hot = torch.nn.functional.one_hot(regime, self.regime_dim).float()
+        h = torch.cat([z, one_hot], dim=-1)
+        mean = torch.tanh(self.policy_head(h))
+        value = self.value_head(h).squeeze(-1)
+        return mean, value
+
     def distributions(self, market, astro, regime=None):
         z = self.encode(market, astro)
         regime_logits = self.regime_head(z)
         regime_dist = Categorical(logits=regime_logits)
         if regime is None:
             regime = regime_dist.sample()
-        one_hot = torch.nn.functional.one_hot(regime, self.regime_dim).float()
-        mean = torch.tanh(self.policy_head(torch.cat([z, one_hot], dim=-1)))
+        mean, value = self._conditioned_heads(z, regime)
         std = self.log_std.exp().clamp(0.03, 1.0)
         action_dist = Normal(mean, std)
-        value = self.value_head(torch.cat([z, one_hot], dim=-1)).squeeze(-1)
         return regime_dist, action_dist, value, regime_logits
 
     def act(self, market, astro, deterministic=False):
-        regime_dist, action_dist, value, regime_logits = self.distributions(market, astro)
-        regime = regime_dist.probs.argmax(-1) if deterministic else regime_dist.sample()
-        one_hot = torch.nn.functional.one_hot(regime, self.regime_dim).float()
         z = self.encode(market, astro)
-        mean = torch.tanh(self.policy_head(torch.cat([z, one_hot], dim=-1)))
+        regime_logits = self.regime_head(z)
+        regime_dist = Categorical(logits=regime_logits)
+        regime = regime_dist.probs.argmax(-1) if deterministic else regime_dist.sample()
+        mean, value = self._conditioned_heads(z, regime)
         action_dist = Normal(mean, self.log_std.exp().clamp(0.03, 1.0))
         action = mean if deterministic else action_dist.rsample()
         action = action.clamp(-1.0, 1.0)
