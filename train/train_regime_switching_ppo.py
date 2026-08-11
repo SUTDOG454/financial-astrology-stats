@@ -49,7 +49,7 @@ def main():
     if args.npz:
         market, astro = load_npz(args.npz, device)
     else:
-        market, astro = build_demo_dataset(device=device if False else "cpu", seed=cfg.seed)
+        market, astro = build_demo_dataset(seed=cfg.seed)
         market, astro = market.to(device), astro.to(device)
 
     env = BatchedMarketEnv(
@@ -68,7 +68,6 @@ def main():
 
     for update in range(1, cfg.updates + 1):
         buffer = RolloutBuffer(cfg.rollout_steps, cfg.num_envs, market_dim, astro_dim, device)
-        episode_rewards = torch.zeros(cfg.num_envs, device=device)
         episode_count = 0
 
         for _ in range(cfg.rollout_steps):
@@ -77,7 +76,6 @@ def main():
                 target = regime_target_from_market(state.market, cfg.regime_dim)
             next_state, reward, done = env.step(action)
             buffer.add(state.market, state.astro, action, regime, reward, done, value, logp, target)
-            episode_rewards += reward
             episode_count += int(done.sum())
             state = next_state
 
@@ -86,9 +84,7 @@ def main():
         advantages, returns = buffer.finish(last_value, cfg.gamma, cfg.gae_lambda)
         batch = buffer.flatten(advantages, returns)
         metrics = trainer.update(batch, advantages, returns)
-        mean_reward = float(batch["returns"].mean())
-        mean_adv = float(advantages.mean())
-        metrics.update(update=update, mean_return_target=mean_reward, mean_advantage=mean_adv,
+        metrics.update(update=update, mean_return_target=float(returns.mean()), mean_advantage=float(advantages.mean()),
                        episodes=episode_count, device=str(device))
         history.append(metrics)
 
