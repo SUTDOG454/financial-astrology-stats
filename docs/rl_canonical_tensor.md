@@ -8,7 +8,9 @@ For each market timestamp `t`:
 
 `market[t] = [r1, mom5, mom20, vol20, atr14_rel, drawdown, volume_z20, rsi14]`
 
-`astro[t] = [raw ephemeris encodings, station/retrograde features, lunar phase, classical aspect resonances, Magi-style geometry resonances, relative speeds, H1-H24 harmonic density]`
+`astro[t] = [raw ephemeris encodings, station/retrograde features, declinations, lunar phase, classical aspect resonances, Magi-style geometry resonances, parallels/contra-parallels, relative speeds, H1-H24 harmonic density]`
+
+The default ephemeris universe includes Sun through Pluto plus Chiron, Ceres and the true lunar node. Chiron and Ceres are included explicitly because they are part of the documented Magi financial-astrology framework.
 
 All features are computed from information available at `t`; no future return is used by the feature generator. Standardization parameters are fitted on the first training fraction and then applied to the complete tensor, so the preprocessing itself is time-ordered.
 
@@ -18,7 +20,9 @@ All features are computed from information available at `t`; no future return is
 
 ## Financial-astrology registry
 
-The feature layer is deliberately hypothesis-oriented. It includes configurable classical aspects, Magi-style 36/72/108/144-degree geometry, lunar phase, planetary stations/retrograde state, relative planetary speed, selected financial pair interactions, and H1-H24 harmonic density. These are candidate explanatory variables, not assumed causal predictors. Every group can be removed in ablation experiments.
+The feature layer is deliberately hypothesis-oriented. It includes configurable classical aspects, Magi-style 36/72/108/144-degree geometry, lunar phase, planetary stations/retrograde state, ecliptic declination, parallel/contra-parallel relationships, relative planetary speed, selected financial-astrobody interactions, and H1-H24 harmonic density. These are candidate explanatory variables, not assumed causal predictors. Every group can be removed in ablation experiments.
+
+The Magi-derived registry is based on the framework's published financial-astrology descriptions, including its emphasis on Venus, Chiron, Neptune and Pluto, later additions such as Ceres, and its use of planetary alignments and declinations. The research implementation preserves those claims as hypotheses to test rather than hard-coded trading rules.
 
 ## Training
 
