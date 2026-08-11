@@ -53,12 +53,12 @@ def build_market_features(df: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
         "volume_z20": (vol_log - vol_log.rolling(20).mean()) / vol_log.rolling(20).std().replace(0, np.nan),
         "trend_20": (close.rolling(5).mean() / close.rolling(20).mean()) - 1.0,
     })
-    feats = feats.replace([np.inf, -np.inf], np.nan).bfill().ffill().fillna(0.0)
+    # Forward fill is point-in-time safe; early unavailable rolling windows become zero.
+    feats = feats.replace([np.inf, -np.inf], np.nan).ffill().fillna(0.0)
     raw_return = feats["return_1"].to_numpy(dtype=np.float32)
     arr = feats.to_numpy(dtype=np.float32)
     med = np.nanmedian(arr, axis=0)
     mad = np.nanmedian(np.abs(arr - med), axis=0) + 1e-6
     arr = np.clip((arr - med) / (1.4826 * mad), -8.0, 8.0).astype(np.float32)
-    # Contract: market[:, 0] is the raw simple return consumed by BatchedMarketEnv.
     arr[:, 0] = raw_return
     return arr, list(feats.columns)
