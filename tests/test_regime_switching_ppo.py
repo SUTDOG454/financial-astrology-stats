@@ -1,4 +1,9 @@
+import sys
+from pathlib import Path
+
 import torch
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from astro_rl.config import PPOConfig
 from astro_rl.env import BatchedMarketEnv, build_demo_dataset
